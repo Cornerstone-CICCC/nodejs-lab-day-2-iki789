@@ -5,7 +5,7 @@ const users: IUser[] = [
   {
     id: "string",
     username: "gus",
-    password: "string",
+    password: "gus",
     firstname: "string",
     lastname: "string",
   },

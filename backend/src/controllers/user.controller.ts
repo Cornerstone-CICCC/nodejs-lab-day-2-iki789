@@ -20,21 +20,25 @@ const getUserByUsername = (
   res.json(user);
 };
 
-const loginUser = (
+const loginUser = async (
   req: Request<{}, {}, { username: string; password: string }>,
   res: Response
 ) => {
   const { username, password } = req.body;
-  const isAuthenticated = userModel.authenticate(username, password);
-  if (!username.trim() || !password.trim()) {
+  if (!username?.trim() || !password?.trim()) {
     res.status(500).json({ error: "Username and password required." });
     return;
   }
-  if (isAuthenticated && req.session) {
-    req.session.isLoggedIn = true;
-  }
 
-  res.json({ success: true });
+  const isAuthenticated = await userModel.authenticate(username, password);
+
+  if (isAuthenticated && req.session) {
+    req.session.isLoggedIn = "true";
+    console.log({ isAuthenticated });
+    res.json({ success: isAuthenticated });
+  } else {
+    res.json({ error: "Invalid username password." });
+  }
 };
 
 const addUser = (req: Request<{}, {}, Omit<IUser, "id">>, res: Response) => {
@@ -57,10 +61,25 @@ const logout = (req: Request, res: Response) => {
   res.json({ success: true, message: "User logged out successfully" });
 };
 
+const checkAuth = async (req: Request, res: Response) => {
+  console.log(req.session);
+  if (req.session && req.session.isLoggedIn) {
+    res.status(200).json({
+      content: req.session.isLoggedIn,
+    });
+
+    return;
+  }
+  res.status(500).json({
+    content: "No cookie found!",
+  });
+};
+
 export default {
   getAllUsers,
   getUserByUsername,
   loginUser,
   addUser,
   logout,
+  checkAuth,
 };

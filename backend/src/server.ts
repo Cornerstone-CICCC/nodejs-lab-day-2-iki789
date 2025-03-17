@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.routes";
+import cookieSession from "cookie-session";
 
 const app = express();
 app.use(
@@ -12,9 +13,15 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["somestring", "somesecurestring"],
+    maxAge: 5 * 60 * 1000,
+  })
+);
 
-app.use("/users", userRouter);
+app.use("/", userRouter);
 
 const PORT = 3001;
 app.listen(PORT, () => {
